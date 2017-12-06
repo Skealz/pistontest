@@ -1,6 +1,9 @@
 [package]
+authors = ["theo"]
 name = "pistontest"
 version = "0.1.0"
-authors = ["theo"]
-
 [dependencies]
+piston = "*"
+piston2d-graphics = "*"
+piston2d-opengl_graphics = "*"
+pistoncore-glutin_window = "*"
