@@ -14,7 +14,11 @@ use opengl_graphics::{OpenGL, GlGraphics};
 use piston::input::RenderEvent;
 
 pub use gameboard::Gameboard;
+pub use gameboard_controller::GameboardController;
+pub use gameboard_view::{GameboardView, GameboardViewSettings};
 mod gameboard;
+mod gameboard_controller;
+mod gameboard_view;
 
 fn main() {
     let opengl = OpenGL::V3_2;
