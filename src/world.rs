@@ -1,23 +1,46 @@
 //! World
 
-/// Size of the game board
-const SIZE: usize = 9;
+use Organism;
+use constants::SIZE;
 
 /// Stores game board information
 pub struct World
 {
-    /// Stores the content of the cells composing the map. 0 means that a cell is empty.
-    pub cells :[[u8; SIZE]; SIZE],
+    /// Stores all the organisms
+    pub organisms : Vec<Organism>,
 }
 
 impl World
 {
-    /// Creates a new World
+    /// Creates a new world
     pub fn new() -> World
     {
         World
         {
-            cells: [[0; SIZE]; SIZE],
+            organisms : Vec::new(),
         }
     }
+
+    /// Adds a new organism
+    pub fn add_organism(&mut self, organism : Organism)
+    {
+        self.organisms.push(organism);
+    }
+
+    /// Returns a 2d map containing the occupied coordinates (marked as a true bool) and the free ones
+    pub fn get_map_usage(&self) -> Vec<Vec<bool>>
+    {
+        let mut map_usage = vec![vec![false; SIZE]; SIZE];
+        for org in self.organisms.iter()
+        {
+            let cells = org.get_cells();
+            for cell in cells.iter()
+            {
+                map_usage[cell.position.x][cell.position.y] = true;
+            }
+        }
+        map_usage
+    }
+
+
 }

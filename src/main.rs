@@ -1,11 +1,11 @@
 #![deny(missing_docs)]
-
 //! Learning to use Piston
 
 extern crate piston;
 extern crate glutin_window;
 extern crate opengl_graphics;
 extern crate graphics;
+extern crate rusttype;
 
 use piston::window::WindowSettings;
 use piston::event_loop::{Events, EventLoop, EventSettings};
@@ -16,9 +16,16 @@ use piston::input::RenderEvent;
 pub use world::World;
 pub use world_controller::WorldController;
 pub use world_view::{WorldView, WorldViewSettings};
+pub use organism::Organism;
+pub use cell::Cell;
+
 mod world;
 mod world_controller;
 mod world_view;
+mod cell;
+mod organism;
+mod constants;
+mod func;
 
 fn main() {
     let opengl = OpenGL::V3_2;
@@ -36,8 +43,11 @@ fn main() {
 
     let world = World::new();
     let mut world_controller = WorldController::new(world);
+    println!("JEAN");
     let world_view_settings = WorldViewSettings::new();
     let world_view = WorldView::new(world_view_settings);
+
+    //world.add_organism(org);
 
     // Event loop. events.next return the an Event item for the current loop.
     // this loop
