@@ -1,2 +1,2 @@
 /// Size of the world
-pub const SIZE: usize = 50000;
+pub const SIZE: usize = 100000;

@@ -7,6 +7,7 @@ use constants::SIZE;
 use rusttype::{point,Point};
 use func;
 use organism::rand::Rng;
+use std::io;
 
 /// Living organism composed by cells.
 pub struct Organism
@@ -31,8 +32,13 @@ impl Organism
 
         let initial_shape = Organism::get_initial_shape();
 
-        let avail_pos = func::get_avail_position(map_usage, &initial_shape);
-        let chosed_pos_index = rand::thread_rng().gen_range(0, avail_pos.len());
+        /*let mut chosed_pos = point(rand::thread_rng().gen_range(0, SIZE), rand::thread_rng().gen_range(0, SIZE));
+        while (!func::check_avail(&map_usage, chosed_pos, &initial_shape))
+        {
+            chosed_pos = point(rand::thread_rng().gen_range(0, SIZE), rand::thread_rng().gen_range(0, SIZE));
+        }
+
+        println!("{:?}", chosed_pos);
 
         for i in 0..initial_shape.len()
         {
@@ -40,12 +46,14 @@ impl Organism
             {
                 if initial_shape[i][j]
                 {
-                    cells.push(Cell::new_random(point(avail_pos[chosed_pos_index].x + i, avail_pos[chosed_pos_index].y + j)));
+                    cells.push(Cell::new_random(point(chosed_pos.x + i, chosed_pos.y + j)));
+                    let mut guess = String::new();
+                    io::stdin().read_line(&mut guess)
+                    .expect("Failed to read line");
                 }
             }
         }
-
-        println!("{}", cells.len());
+        println!("cell{}", cells.len());*/
 
 
 
