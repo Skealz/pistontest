@@ -16,6 +16,7 @@ pub fn check_avail(map_usage : &Vec<Vec<bool>>, position : Point<usize>, space_n
             (space_needed[index_to_addx][index_to_addy] == true &&
             map_usage[position.x + index_to_addx][position.y + index_to_addy] == true)
             {
+                println!("nok");
                 is_okay = false;
                 break;
             }

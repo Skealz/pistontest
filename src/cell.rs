@@ -43,6 +43,7 @@ impl Cell
     /// Creates a new cell with a predefined type at the specified position
     pub fn new(cell_type : CellType, position : Point<usize>) -> Cell
     {
+        println!("Creating cell");
         Cell
         {
             position,

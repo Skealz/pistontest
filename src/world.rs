@@ -30,7 +30,8 @@ impl World
     /// Returns a 2d map containing the occupied coordinates (marked as a true bool) and the free ones
     pub fn get_map_usage(&self) -> Vec<Vec<bool>>
     {
-        let mut map_usage = vec![vec![false; SIZE]; SIZE];
+        //let mut map_usage = vec![vec![false; SIZE]; SIZE];
+        let mut map_usage : Vec<Vec<bool>> = vec![vec![false; SIZE]; SIZE];
         for org in self.organisms.iter()
         {
             let cells = org.get_cells();
