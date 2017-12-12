@@ -2,8 +2,11 @@
 
 use graphics::types::Color;
 use graphics::{Context,Graphics};
-
+use constants::*;
 use WorldController;
+use World;
+use Cell;
+use Organism;
 
 ///Stores world view settings
 pub struct WorldViewSettings
@@ -11,8 +14,11 @@ pub struct WorldViewSettings
     ///Position from top-left corner
     pub position : [f64;2],
 
-    ///Size of the world
-    pub size : f64,
+    /// Width of the view
+    pub width : f64,
+
+    /// Height of the view
+    pub height : f64,
 
     /// Game background color
     pub background_color: Color,
@@ -28,9 +34,10 @@ impl WorldViewSettings
     {
         WorldViewSettings
         {
-            position: [50.0; 2],
-            size: 400.0,
-            background_color: [0.8, 0.8, 1.0, 1.0],
+            position: [0.0; 2],
+            width: WIN_WIDTH,
+            height : WIN_HEIGHT,
+            background_color: [0.0, 0.0, 0.0, 1.0],
             border_color: [0.0, 0.0, 0.2, 1.0],
         }
     }
@@ -59,9 +66,22 @@ impl WorldView
     {
       use graphics::{Line, Rectangle};
 
-      let board_rect = [self.settings.position[0], self.settings.position[1], self.settings.size, self.settings.size];
+      let board_rect = [self.settings.position[0], self.settings.position[1], self.settings.width, self.settings.height];
 
       //Draw board background
       Rectangle::new(self.settings.background_color).draw(board_rect, &c.draw_state, c.transform, g);
+
+      let world : &World = controller.get_world();
+
+      let orgs : &Vec<Organism> = world.get_organisms();
+      for org in orgs
+      {
+        let cells = org.get_cells();
+        for cell in cells
+        {
+            Rectangle::new([0.0, 255.0, 0.0, 1.0]).draw([cell.position.x as f64, cell.position.y as f64, 1.0, 1.0],
+                 &c.draw_state, c.transform, g);
+        }
+      }
     }
 }

@@ -1,7 +1,6 @@
 //! World controller.
 
 use piston::input::GenericEvent;
-use Organism;
 use World;
 
 /// Handles the game events
@@ -17,13 +16,16 @@ impl WorldController
     ///Creates a new WorldController
     pub fn new(world: World) -> WorldController
     {
-        let mut org = Organism::new(world.get_map_usage());
-
         WorldController
         {
-
             world: world,
         }
+    }
+
+    /// Returns the world
+    pub fn get_world(&self) -> &World
+    {
+        &self.world
     }
 
     ///Handles Events

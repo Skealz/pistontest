@@ -1,6 +1,6 @@
 //! Useful functions
 
-use constants::SIZE;
+use constants::WORLD_SIZE;
 use rusttype::{point,Point};
 
 /// Check if the given position is available on the map
@@ -35,9 +35,9 @@ pub fn check_avail(map_usage : &Vec<Vec<bool>>, position : Point<usize>, space_n
 pub fn get_avail_position(map_usage : Vec<Vec<bool>>, space_needed : &Vec<Vec<bool>>) -> Vec<Point<usize>>
 {
     let mut avail_pos : Vec<Point<usize>> = Vec::new();
-    for i in 0..SIZE
+    for i in 0..WORLD_SIZE
     {
-        for j in 0..SIZE
+        for j in 0..WORLD_SIZE
         {
             let mut is_okay = true;
             for index_to_addx in 0..space_needed.len()
@@ -60,7 +60,6 @@ pub fn get_avail_position(map_usage : Vec<Vec<bool>>, space_needed : &Vec<Vec<bo
             }
             if is_okay
             {
-                //println!("Point ok");
                 avail_pos.push(point(i, j));
             }
         }

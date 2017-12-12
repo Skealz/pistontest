@@ -1,8 +1,9 @@
 //! Cells behavior
 
 extern crate rand;
+
 use rusttype::Point;
-use cell::rand::Rng;
+use rand::Rng;
 
 pub enum CellType
 {

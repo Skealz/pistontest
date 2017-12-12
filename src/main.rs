@@ -6,6 +6,7 @@ extern crate glutin_window;
 extern crate opengl_graphics;
 extern crate graphics;
 extern crate rusttype;
+extern crate rand;
 
 use piston::window::WindowSettings;
 use piston::event_loop::{Events, EventLoop, EventSettings};
@@ -18,6 +19,7 @@ pub use world_controller::WorldController;
 pub use world_view::{WorldView, WorldViewSettings};
 pub use organism::Organism;
 pub use cell::Cell;
+pub use constants::{WIN_WIDTH, WIN_HEIGHT};
 
 mod world;
 mod world_controller;
@@ -31,7 +33,7 @@ fn main() {
     let opengl = OpenGL::V3_2;
 
     // Contains the settings for the window that will be created after.
-    let settings = WindowSettings::new("Learning Piston", [500,500])
+    let settings = WindowSettings::new("Learning Piston", [WIN_WIDTH.trunc() as u32, WIN_HEIGHT.trunc() as u32])
     .exit_on_esc(true).opengl(opengl);
 
     // Creating the window
@@ -41,13 +43,11 @@ fn main() {
     let mut events = Events::new(EventSettings::new().lazy(true));
     let mut gl = GlGraphics::new(opengl);
 
-    let world = World::new();
+    let mut world = World::new();
+    world.create_initial_orgs();
     let mut world_controller = WorldController::new(world);
-    println!("JEAN");
     let world_view_settings = WorldViewSettings::new();
     let world_view = WorldView::new(world_view_settings);
-
-    //world.add_organism(org);
 
     // Event loop. events.next return the an Event item for the current loop.
     // this loop

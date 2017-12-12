@@ -3,11 +3,10 @@
 extern crate rand;
 
 use Cell;
-use constants::SIZE;
+use constants::WORLD_SIZE;
 use rusttype::{point,Point};
 use func;
-use organism::rand::Rng;
-use std::io;
+use rand::Rng;
 
 /// Living organism composed by cells.
 pub struct Organism
@@ -32,12 +31,11 @@ impl Organism
 
         let initial_shape = Organism::get_initial_shape();
 
-        let mut chosed_pos = point(rand::thread_rng().gen_range(0, SIZE), rand::thread_rng().gen_range(0, SIZE));
-        while (!func::check_avail(&map_usage, chosed_pos, &initial_shape))
+        let mut chosed_pos = point(rand::thread_rng().gen_range(0, WORLD_SIZE), rand::thread_rng().gen_range(0, WORLD_SIZE));
+        while !func::check_avail(&map_usage, chosed_pos, &initial_shape)
         {
-            chosed_pos = point(rand::thread_rng().gen_range(0, SIZE), rand::thread_rng().gen_range(0, SIZE));
+            chosed_pos = point(rand::thread_rng().gen_range(0, WORLD_SIZE), rand::thread_rng().gen_range(0, WORLD_SIZE));
         }
-        println!("lol");
 
         println!("{:?}", chosed_pos);
 
@@ -51,9 +49,6 @@ impl Organism
                 }
             }
         }
-        println!("cell{}", cells.len());
-
-
 
         Organism
         {
