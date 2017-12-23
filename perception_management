@@ -1,0 +1,5 @@
+Organims have their own capacity of perception depending on them cells composition.
+
+The perception capacity will define the maximum distance of vision of an organism (they can see food or other organisms).
+At each update, the organism will look around him and store the objects he sees. After that, another function will determine what action
+the organism will do depending on what he sees.
