@@ -14,6 +14,8 @@ pub struct World
 {
     /// Stores all the organisms
     pub organisms : Vec<Organism>,
+
+    /// Food position on the map
     pub food : Vec<Point<usize>>
 }
 
@@ -22,19 +24,19 @@ impl World
     /// Creates a new world
     pub fn new() -> World
     {
-        let food : Vec<Point<usize>> = Vec::new();
-        let nb_food = (WORLD_SIZE * WORLD_SIZE) as f32 * FOOD_PROP;
+        let mut food : Vec<Point<usize>> = Vec::new();
+        let nb_food = ((WORLD_SIZE * WORLD_SIZE) as f32 * FOOD_PROP).trunc() as i32;
         for i in 0..nb_food
         {
-            let x = rand::thread_rng().gen_range(0, WORLD_SIZE);
-            let y = rand::thread_rng().gen_range(0, WORLD_SIZE);
-            let point : Point<usize> = point(x, y);
+            let mut x = rand::thread_rng().gen_range(0, WORLD_SIZE);
+            let mut y = rand::thread_rng().gen_range(0, WORLD_SIZE);
+            let mut p : Point<usize> = point(x, y);
 
-            while (food.contains(point))
+            while (food.contains(&p))
             {
                 x = rand::thread_rng().gen_range(0, WORLD_SIZE);
                 y = rand::thread_rng().gen_range(0, WORLD_SIZE);
-                point = point(x, y);
+                p = point(x, y);
             }
 
             food.push(point(x,y));
@@ -45,6 +47,12 @@ impl World
             organisms : Vec::new(),
             food : food,
         }
+    }
+
+    /// Returns food position
+    pub fn get_food_pos(&self) -> &Vec<Point<usize>>
+    {
+        return &self.food;
     }
 
     /// Creates initial organisms
