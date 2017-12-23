@@ -58,6 +58,12 @@ impl Organism
         }
     }
 
+    /// Updates the organism
+    pub fn update(mut &self)
+    {
+
+    }
+
     /// Returns the shape of an initially created organism
     pub fn get_initial_shape() -> Vec<Vec<bool>>
     {
