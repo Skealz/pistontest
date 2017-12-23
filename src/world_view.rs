@@ -7,6 +7,8 @@ use WorldController;
 use World;
 use Cell;
 use Organism;
+use graphics::{Line, Rectangle};
+use rusttype::Point;
 
 ///Stores world view settings
 pub struct WorldViewSettings
@@ -64,24 +66,42 @@ impl WorldView
     /// Draw world
     pub fn draw<G: Graphics>(&self, controller: &WorldController, c: &Context, g: &mut G)
     {
-      use graphics::{Line, Rectangle};
-
       let board_rect = [self.settings.position[0], self.settings.position[1], self.settings.width, self.settings.height];
 
       //Draw board background
       Rectangle::new(self.settings.background_color).draw(board_rect, &c.draw_state, c.transform, g);
 
-      let world : &World = controller.get_world();
+      self.draw_cells(controller, c, g);
+      self.draw_food(controller, c, g);
+    }
 
-      let orgs : &Vec<Organism> = world.get_organisms();
-      for org in orgs
-      {
-        let cells = org.get_cells();
-        for cell in cells
+    /// Draws cells
+    pub fn draw_cells<G: Graphics>(&self, controller: &WorldController, c: &Context, g: &mut G)
+    {
+        let world : &World = controller.get_world();
+
+        let orgs : &Vec<Organism> = world.get_organisms();
+        for org in orgs
         {
-            Rectangle::new([0.0, 255.0, 0.0, 1.0]).draw([cell.position.x as f64, cell.position.y as f64, 1.0, 1.0],
+          let cells = org.get_cells();
+          for cell in cells
+          {
+              Rectangle::new([0.0, 255.0, 0.0, 1.0]).draw([cell.position.x as f64, cell.position.y as f64, 1.0, 1.0],
+                   &c.draw_state, c.transform, g);
+          }
+        }
+    }
+
+    /// Draws food
+    pub fn draw_food<G: Graphics>(&self, controller: &WorldController, c: &Context, g: &mut G)
+    {
+        let world : &World = controller.get_world();
+        let food_pos : &Vec<Point<usize>> = world.get_food_pos();
+
+        for pos in food_pos
+        {
+            Rectangle::new([255.0, 0.0, 0.0, 1.0]).draw([pos.x as f64, pos.y as f64, 1.0, 1.0],
                  &c.draw_state, c.transform, g);
         }
-      }
     }
 }
