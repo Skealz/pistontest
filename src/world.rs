@@ -5,7 +5,6 @@ extern crate rand;
 use Organism;
 use constants::WORLD_SIZE;
 use rand::Rng;
-use piston::window::Position;
 use constants::FOOD_PROP;
 use rusttype::{Point,point};
 
@@ -26,13 +25,13 @@ impl World
     {
         let mut food : Vec<Point<usize>> = Vec::new();
         let nb_food = ((WORLD_SIZE * WORLD_SIZE) as f32 * FOOD_PROP).trunc() as i32;
-        for i in 0..nb_food
+        for _i in 0..nb_food
         {
             let mut x = rand::thread_rng().gen_range(0, WORLD_SIZE);
             let mut y = rand::thread_rng().gen_range(0, WORLD_SIZE);
             let mut p : Point<usize> = point(x, y);
 
-            while (food.contains(&p))
+            while food.contains(&p)
             {
                 x = rand::thread_rng().gen_range(0, WORLD_SIZE);
                 y = rand::thread_rng().gen_range(0, WORLD_SIZE);
@@ -58,7 +57,7 @@ impl World
     /// Creates initial organisms
     pub fn create_initial_orgs(&mut self)
     {
-        for i in 0..10
+        for _i in 0..10
         {
             let map_usage = self.get_map_usage();
             self.organisms.push(Organism::new(map_usage));
