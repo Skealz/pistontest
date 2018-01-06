@@ -5,9 +5,8 @@ use graphics::{Context,Graphics};
 use constants::*;
 use WorldController;
 use World;
-use Cell;
 use Organism;
-use graphics::{Line, Rectangle};
+use graphics::{Rectangle};
 use rusttype::Point;
 
 ///Stores world view settings
