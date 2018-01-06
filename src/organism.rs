@@ -4,7 +4,7 @@ extern crate rand;
 
 use Cell;
 use constants::WORLD_SIZE;
-use rusttype::{point,Point};
+use rusttype::{Point, point};
 use func;
 use rand::Rng;
 
@@ -19,6 +19,12 @@ pub struct Organism
 
     /// Current hunger of the oranism (between 0 and hunger)
     current_hunger : i16,
+
+    /// Current perception ability
+    current_perception : i16,
+
+    /// Points defining the area in which the organism can see
+    perception_area : Vec<Point<usize>>,
 }
 
 impl Organism
@@ -50,18 +56,47 @@ impl Organism
             }
         }
 
-        Organism
+        let mut org = Organism
         {
             cells : cells,
             hunger : 10,
             current_hunger : 7,
-        }
+            current_perception : 0,
+            perception_area : Vec::new(),
+        };
+        org.update_perception();
+        org
     }
 
     /// Updates the organism
-    pub fn update(mut &self)
+    pub fn update(&mut self)
     {
 
+    }
+
+    /// Updates the area in which the organism can see. Uses current_perception value
+    /// added to the cells in all the directions
+    pub fn update_perception_area(&mut self)
+    {
+        let cells = self.cells;
+        for cell in cells
+        {
+            let cell_pos = cell.position;
+            let y = sqrt(self.current_perception * self.current_perception -
+            (i-cell_pos.x)) 
+        }
+    }
+
+    /// Computes the current organism perception ability by adding the perception of each cell
+    /// This function should be called when a cell is created or destroyed.
+    pub fn update_perception(&mut self)
+    {
+        self.current_perception = 0;
+        let cells = &self.cells;
+        for cell in cells
+        {
+            self.current_perception += cell.perception;
+        }
     }
 
     /// Returns the shape of an initially created organism
