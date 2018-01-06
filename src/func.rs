@@ -1,7 +1,6 @@
 //! Useful functions
 
-use constants::WORLD_SIZE;
-use rusttype::{point,Point};
+use rusttype::{Point};
 
 /// Check if the given position is available on the map
 pub fn check_avail(map_usage : &Vec<Vec<bool>>, position : Point<usize>, space_needed : &Vec<Vec<bool>>) -> bool
@@ -29,10 +28,10 @@ pub fn check_avail(map_usage : &Vec<Vec<bool>>, position : Point<usize>, space_n
     is_okay
 }
 
-/// Returns the available top left positions on the map where space is available to create a new cell.
-/// map_usage represents the current map usage.
-/// space_needed is the map containing the searched space.
-pub fn get_avail_position(map_usage : Vec<Vec<bool>>, space_needed : &Vec<Vec<bool>>) -> Vec<Point<usize>>
+// Returns the available top left positions on the map where space is available to create a new cell.
+// map_usage represents the current map usage.
+// space_needed is the map containing the searched space.
+/*pub fn get_avail_position(map_usage : Vec<Vec<bool>>, space_needed : &Vec<Vec<bool>>) -> Vec<Point<usize>>
 {
     let mut avail_pos : Vec<Point<usize>> = Vec::new();
     for i in 0..WORLD_SIZE
@@ -65,4 +64,4 @@ pub fn get_avail_position(map_usage : Vec<Vec<bool>>, space_needed : &Vec<Vec<bo
         }
     }
     avail_pos
-}
+}*/
