@@ -1,5 +1,15 @@
 Organims have their own capacity of perception depending on them cells composition.
 
 The perception capacity will define the maximum distance of vision of an organism (they can see food or other organisms).
-At each update, the organism will look around him and store the objects he sees. After that, another function will determine what action
+At each update, the organism will look around him and store the objects he sees. After that,
+another function will determine what action
 the organism will do depending on what he sees.
+
+The area of perception is calculated by taking the distance perception
+of the organism and adding it to the exterior cells of the organism in all the directions
+The result will be an area in which the organism can perceive everything.
+
+The perception area is stored in the organism object and recomputed only when new cells are created
+
+Each time the organism moves, the perception area is moved the same way.
+The position of the perception area is defined by a list of 2D positions.
