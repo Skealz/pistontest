@@ -7,25 +7,31 @@ use WorldController;
 use World;
 use Organism;
 use graphics::{Rectangle};
-use rusttype::Point;
+use rusttype::{Point, point};
 
 ///Stores world view settings
 pub struct WorldViewSettings
 {
-    ///Position from top-left corner
-    pub position : [f64;2],
+    /// Width of the Window
+    pub width : i32,
 
-    /// Width of the view
-    pub width : f64,
-
-    /// Height of the view
-    pub height : f64,
+    /// Height of the Window
+    pub height : i32,
 
     /// Game background color
     pub background_color: Color,
 
     /// Game border color
     pub border_color : Color,
+
+    ///Position from top-left corner
+    pub view_position : Point<i32>,
+
+    /// Define which part of the world is displayed
+    pub view_width : i32,
+
+    /// Define which part of the world is displayed
+    pub view_height : i32
 }
 
 impl WorldViewSettings
@@ -35,9 +41,11 @@ impl WorldViewSettings
     {
         WorldViewSettings
         {
-            position: [0.0; 2],
-            width: WIN_WIDTH,
-            height : WIN_HEIGHT,
+            view_position: point(0,0),
+            width: WIN_WIDTH as i32,
+            height : WIN_HEIGHT as i32,
+            view_width : WORLD_SIZE as i32,
+            view_height : WORLD_SIZE as i32,
             background_color: [0.0, 0.0, 0.0, 1.0],
             border_color: [0.0, 0.0, 0.2, 1.0],
         }
@@ -65,7 +73,7 @@ impl WorldView
     /// Draw world
     pub fn draw<G: Graphics>(&self, controller: &WorldController, c: &Context, g: &mut G)
     {
-      let board_rect = [self.settings.position[0], self.settings.position[1], self.settings.width, self.settings.height];
+      let board_rect = [0.0, 0.0, self.settings.width as f64, self.settings.height as f64];
 
       //Draw board background
       Rectangle::new(self.settings.background_color).draw(board_rect, &c.draw_state, c.transform, g);
@@ -85,8 +93,19 @@ impl WorldView
           let cells = org.get_cells();
           for cell in cells
           {
-              Rectangle::new([0.0, 255.0, 0.0, 1.0]).draw([cell.position.x as f64, cell.position.y as f64, 1.0, 1.0],
-                   &c.draw_state, c.transform, g);
+              let mut pos_x: i32 =  cell.position.x as i32 - self.settings.view_position.x;
+              let mut pos_y: i32 =  cell.position.y as i32 - self.settings.view_position.y;
+              if (cell.position.x as i32) > self.settings.view_position.x && (cell.position.y as i32) > self.settings.view_position.y &&
+               (cell.position.x as i32) < self.settings.view_position.x + self.settings.view_width &&
+               (cell.position.y as i32) < self.settings.view_position.y + self.settings.view_height
+              {
+                  let zoom_factor: f64 = WIN_WIDTH as f64 / (self.settings.view_width) as f64;
+                  pos_x = (pos_x as f64 * zoom_factor).trunc() as i32;
+                  pos_y = (pos_y as f64 * zoom_factor).trunc() as i32;
+                  println!("{:?}", zoom_factor);
+                  Rectangle::new([0.0, 255.0, 0.0, 1.0]).draw([pos_x as f64, pos_y as f64, zoom_factor.trunc() as f64, zoom_factor.trunc() as f64],
+                       &c.draw_state, c.transform, g);
+              }
           }
         }
     }
@@ -99,8 +118,35 @@ impl WorldView
 
         for pos in food_pos
         {
-            Rectangle::new([255.0, 0.0, 0.0, 1.0]).draw([pos.x as f64, pos.y as f64, 1.0, 1.0],
-                 &c.draw_state, c.transform, g);
+            let mut pos_x: i32 = pos.x as i32 - self.settings.view_position.x;
+            let mut pos_y: i32 =  pos.y as i32 - self.settings.view_position.y;
+            if (pos.x as i32) > self.settings.view_position.x && (pos.y as i32) > self.settings.view_position.y &&
+             (pos.x as i32) < self.settings.view_position.x + self.settings.view_width && (pos.y as i32) < self.settings.view_position.y + self.settings.view_height
+             {
+                let zoom_factor: f64 = WIN_WIDTH as f64 / (self.settings.view_width) as f64;
+                pos_x = (pos_x as f64 * zoom_factor).trunc() as i32;
+                pos_y = (pos_y as f64 * zoom_factor).trunc() as i32;
+                Rectangle::new([255.0, 0.0, 0.0, 1.0]).draw([pos_x as f64, pos_y as f64, zoom_factor.trunc() as f64, zoom_factor.trunc() as f64],
+                     &c.draw_state, c.transform, g);
+             }
         }
+    }
+
+    /// Change world view
+    pub fn set_view(&mut self, pos: Point<i32>, width: i32, height: i32)
+    {
+        self.settings.view_position.x += ((self.settings.view_width as f64 / WIN_WIDTH) * pos.x as f64).trunc() as i32;
+        self.settings.view_position.y += ((self.settings.view_width as f64 / WIN_WIDTH) * pos.y as f64).trunc() as i32;
+        self.settings.view_width = ((self.settings.view_width as f64 / WIN_WIDTH) * width as f64).trunc() as i32;
+        self.settings.view_height = ((self.settings.view_height as f64 / WIN_HEIGHT) * width as f64).trunc() as i32;
+    }
+
+    /// Reset world view to fit world size
+    pub fn reset_view(&mut self)
+    {
+        self.settings.view_position.x = 0;
+        self.settings.view_position.y = 0;
+        self.settings.view_width = WORLD_SIZE as i32;
+        self.settings.view_height = WORLD_SIZE as i32;
     }
 }

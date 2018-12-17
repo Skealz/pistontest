@@ -78,12 +78,11 @@ impl Organism
     /// added to the cells in all the directions
     pub fn update_perception_area(&mut self)
     {
-        let cells = self.cells;
+        let cells = &self.cells;
         for cell in cells
         {
             let cell_pos = cell.position;
-            let y = sqrt(self.current_perception * self.current_perception -
-            (i-cell_pos.x)) 
+            //let y = ((self.current_perception * self.current_perception - (i-cell_pos.x)) as f64).sqrt();
         }
     }
 

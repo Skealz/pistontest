@@ -12,7 +12,8 @@ use piston::window::WindowSettings;
 use piston::event_loop::{Events, EventLoop, EventSettings};
 use glutin_window::GlutinWindow;
 use opengl_graphics::{OpenGL, GlGraphics};
-use piston::input::RenderEvent;
+use piston::input::*;
+use rusttype::{Point, point};
 
 pub use world::World;
 pub use world_controller::WorldController;
@@ -46,15 +47,18 @@ fn main() {
     let mut world = World::new();
     world.create_initial_orgs();
     let mut world_controller = WorldController::new(world);
-    let world_view_settings = WorldViewSettings::new();
-    let world_view = WorldView::new(world_view_settings);
+    let mut world_view_settings = WorldViewSettings::new();
+    let mut world_view = WorldView::new(world_view_settings);
 
+    let mut cursor = point(0.0, 0.0);
+    let mut pressed_pos = point(0.0,0.0);
+    let mut release_pos = point(0.0,0.0);
     // Event loop. events.next return the an Event item for the current loop.
     // this loop
     while let Some(e) = events.next(&mut window)
     {
         world_controller.events(&e);
-         //e : Event is a enum that contains the differents events
+         //e : Event is an enum that contains the differents events
         if let Some(args) = e.render_args()
         {
             gl.draw(args.viewport(), |c, g| {
@@ -64,5 +68,39 @@ fn main() {
                 world_view.draw(&world_controller, &c, g);
             });
         }
+        if let Some(Button::Mouse(button)) = e.press_args() {
+            if button == mouse::MouseButton::Left
+            {
+                pressed_pos = cursor;
+                println!("Pressed mouse button '{:?}'", button);
+            }
+            else if button == mouse::MouseButton::Right
+            {
+                world_view.reset_view();
+            }
+        }
+        if let Some(Button::Mouse(button)) = e.release_args() {
+            if button == mouse::MouseButton::Left
+            {
+                release_pos = cursor;
+                println!("Released mouse button '{:?}'", button);
+                println!("Width {:?} Height {:?}", ((pressed_pos.x - release_pos.x) as f64).abs(), ((pressed_pos.y - release_pos.y) as f64).abs());
+                let mut view_pos = point(0,0);
+                if pressed_pos.x <= release_pos.x || pressed_pos.y <= release_pos.y
+                {
+                    view_pos = point((pressed_pos.x as f64).trunc() as i32, (pressed_pos.y as f64).trunc() as i32)
+                }
+                else
+                {
+                    view_pos = point((release_pos.x as f64).trunc() as i32, (release_pos.y as f64).trunc() as i32)
+                }
+                println!("PosX {:?} PosY {:?}", view_pos.x, view_pos.y);
+                world_view.set_view(view_pos, ((pressed_pos.x - release_pos.x) as f64).abs() as i32, ((pressed_pos.y - release_pos.y) as f64).abs() as i32)
+            }
+        }
+        e.mouse_cursor(|x, y| {
+            cursor = point(x, y);
+            //println!("Mouse moved '{} {}'", x, y);
+        });
     }
 }
