@@ -36,13 +36,13 @@ pub struct Cell
     pub perception : i16,
 
     /// Cell position on the grid
-    pub position : Point<usize>,
+    pub position : Point<i32>,
 }
 
 impl Cell
 {
     /// Creates a new cell with a predefined type at the specified position
-    pub fn new(cell_type : CellType, position : Point<usize>) -> Cell
+    pub fn new(cell_type : CellType, position : Point<i32>) -> Cell
     {
         println!("Creating cell");
         Cell
@@ -53,12 +53,12 @@ impl Cell
             movement : match cell_type { CellType::Movement => 3, _ => 1 },
             attack : match cell_type { CellType::Attack => 10, _ => 1 },
             defense : match cell_type { CellType::Defense => 10, _ => 1 },
-            perception : match cell_type { CellType::Perception => 5, _ => 1 },
+            perception : match cell_type { CellType::Perception => 5, _ => 10 },
         }
     }
 
     /// Creates a new cell with a random type at the specified position
-    pub fn new_random(position : Point<usize>) -> Cell
+    pub fn new_random(position : Point<i32>) -> Cell
     {
         let type_index = rand::thread_rng().gen_range(0, 4);
 

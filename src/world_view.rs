@@ -80,6 +80,7 @@ impl WorldView
 
       self.draw_cells(controller, c, g);
       self.draw_food(controller, c, g);
+      //self.draw_perceptions(controller, c, g);
     }
 
     /// Draws cells
@@ -102,7 +103,7 @@ impl WorldView
                   let zoom_factor: f64 = WIN_WIDTH as f64 / (self.settings.view_width) as f64;
                   pos_x = (pos_x as f64 * zoom_factor).trunc() as i32;
                   pos_y = (pos_y as f64 * zoom_factor).trunc() as i32;
-                  println!("{:?}", zoom_factor);
+                  //println!("{:?}", zoom_factor);
                   Rectangle::new([0.0, 255.0, 0.0, 1.0]).draw([pos_x as f64, pos_y as f64, zoom_factor.trunc() as f64, zoom_factor.trunc() as f64],
                        &c.draw_state, c.transform, g);
               }
@@ -110,11 +111,40 @@ impl WorldView
         }
     }
 
+    /// Draw perceptions circles
+    pub fn draw_perceptions<G: Graphics>(&self, controller: &WorldController, c: &Context, g: &mut G)
+    {
+        let world : &World = controller.get_world();
+        let orgs : &Vec<Organism> = world.get_organisms();
+
+        for org in orgs
+        {
+            let area_points = org.get_perception_area();
+
+            for pnt in area_points
+            {
+                let mut pos_x: i32 =  pnt.x as i32 - self.settings.view_position.x;
+                let mut pos_y: i32 =  pnt.y as i32 - self.settings.view_position.y;
+                if (pnt.x as i32) > self.settings.view_position.x && (pnt.y as i32) > self.settings.view_position.y &&
+                 (pnt.x as i32) < self.settings.view_position.x + self.settings.view_width &&
+                 (pnt.y as i32) < self.settings.view_position.y + self.settings.view_height
+                {
+                    let zoom_factor: f64 = WIN_WIDTH as f64 / (self.settings.view_width) as f64;
+                    pos_x = (pos_x as f64 * zoom_factor).trunc() as i32;
+                    pos_y = (pos_y as f64 * zoom_factor).trunc() as i32;
+                    Rectangle::new([0.0, 102.0, 255.0, 1.0]).draw([pos_x as f64, pos_y as f64, zoom_factor.trunc() as f64, zoom_factor.trunc() as f64],
+                         &c.draw_state, c.transform, g);
+                }
+            }
+        }
+
+    }
+
     /// Draws food
     pub fn draw_food<G: Graphics>(&self, controller: &WorldController, c: &Context, g: &mut G)
     {
         let world : &World = controller.get_world();
-        let food_pos : &Vec<Point<usize>> = world.get_food_pos();
+        let food_pos : &Vec<Point<i32>> = world.get_food_pos();
 
         for pos in food_pos
         {

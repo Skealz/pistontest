@@ -9,32 +9,32 @@ use constants::FOOD_PROP;
 use rusttype::{Point,point};
 
 /// Stores game board information
-pub struct World
+pub struct World<'b>
 {
     /// Stores all the organisms
-    pub organisms : Vec<Organism>,
+    pub organisms : Vec<Organism<'b>>,
 
     /// Food position on the map
-    pub food : Vec<Point<usize>>
+    pub food : Vec<Point<i32>>
 }
 
-impl World
+impl<'b> World<'b>
 {
     /// Creates a new world
-    pub fn new() -> World
+    pub fn new() -> World<'b>
     {
-        let mut food : Vec<Point<usize>> = Vec::new();
+        let mut food : Vec<Point<i32>> = Vec::new();
         let nb_food = ((WORLD_SIZE * WORLD_SIZE) as f32 * FOOD_PROP).trunc() as i32;
         for _i in 0..nb_food
         {
-            let mut x = rand::thread_rng().gen_range(0, WORLD_SIZE);
-            let mut y = rand::thread_rng().gen_range(0, WORLD_SIZE);
-            let mut p : Point<usize> = point(x, y);
+            let mut x = rand::thread_rng().gen_range(0, WORLD_SIZE) as i32;
+            let mut y = rand::thread_rng().gen_range(0, WORLD_SIZE) as i32;
+            let mut p : Point<i32> = point(x, y);
 
             while food.contains(&p)
             {
-                x = rand::thread_rng().gen_range(0, WORLD_SIZE);
-                y = rand::thread_rng().gen_range(0, WORLD_SIZE);
+                x = rand::thread_rng().gen_range(0, WORLD_SIZE) as i32;
+                y = rand::thread_rng().gen_range(0, WORLD_SIZE) as i32;
                 p = point(x, y);
             }
 
@@ -48,8 +48,17 @@ impl World
         }
     }
 
+    /// Updates the world
+    pub fn update(&mut self)
+    {
+        for org in self.organisms.iter_mut()
+        {
+            org.update(&self.food);
+        }
+    }
+
     /// Returns food position
-    pub fn get_food_pos(&self) -> &Vec<Point<usize>>
+    pub fn get_food_pos(&self) -> &Vec<Point<i32>>
     {
         return &self.food;
     }
@@ -57,7 +66,7 @@ impl World
     /// Creates initial organisms
     pub fn create_initial_orgs(&mut self)
     {
-        for _i in 0..10
+        for _i in 0..1
         {
             let map_usage = self.get_map_usage();
             self.organisms.push(Organism::new(map_usage));
@@ -86,7 +95,7 @@ impl World
             let cells = org.get_cells();
             for cell in cells.iter()
             {
-                map_usage[cell.position.x][cell.position.y] = true;
+                map_usage[cell.position.x as usize][cell.position.y as usize] = true;
             }
         }
         map_usage

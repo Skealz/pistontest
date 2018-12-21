@@ -2,4 +2,4 @@ cell_pos rayon
 
 (x-cell_pos.x)² + (cell_pos.y-y)² = r²
 (cell_pos.y-y)² = r² - (x-cell_pos.x)²
-y = +- sqrt(r² - (x-cell_pos.x)²) + cell_pos.y
+y = +- (-sqrt(r² - (x-cell_pos.x)²) + cell_pos.y)

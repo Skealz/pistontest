@@ -8,4 +8,4 @@ pub const WIN_WIDTH : f64 = 500.0;
 pub const WIN_HEIGHT : f64 = 500.0;
 
 /// Food proportion on the map
-pub const FOOD_PROP : f32 = 0.01;
+pub const FOOD_PROP : f32 = 0.001;

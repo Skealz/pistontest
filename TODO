@@ -1,9 +1,11 @@
 TODO file
 
 Current tasks :
+Searching for food --> if no food in sight, go in a random direction. If food in sight, go directly to it.
 
 Tasks to do :
 Organisms behaviors : perception, search for food, estimate other individuals threat or gain when killed.
 
 
 Over :
+Perception area

@@ -14,6 +14,7 @@ use glutin_window::GlutinWindow;
 use opengl_graphics::{OpenGL, GlGraphics};
 use piston::input::*;
 use rusttype::{Point, point};
+use std::time::{SystemTime, Duration};
 
 pub use world::World;
 pub use world_controller::WorldController;
@@ -41,32 +42,35 @@ fn main() {
     let mut window: GlutinWindow = settings.build().expect("Could not create window");
 
     // Creating the event loop with event settings
-    let mut events = Events::new(EventSettings::new().lazy(true));
+    let mut events = Events::new(EventSettings::new());
     let mut gl = GlGraphics::new(opengl);
 
     let mut world = World::new();
     world.create_initial_orgs();
     let mut world_controller = WorldController::new(world);
-    let mut world_view_settings = WorldViewSettings::new();
-    let mut world_view = WorldView::new(world_view_settings);
+
+    let world_view_settings : WorldViewSettings = WorldViewSettings::new();
+    let mut world_view : WorldView = WorldView::new(world_view_settings);
+
 
     let mut cursor = point(0.0, 0.0);
     let mut pressed_pos = point(0.0,0.0);
     let mut release_pos = point(0.0,0.0);
+
+
     // Event loop. events.next return the an Event item for the current loop.
     // this loop
     while let Some(e) = events.next(&mut window)
     {
-        world_controller.events(&e);
          //e : Event is an enum that contains the differents events
         if let Some(args) = e.render_args()
         {
-            gl.draw(args.viewport(), |c, g| {
+            /*gl.draw(args.viewport(), |c, g| {
                 use graphics::{clear};
 
                 clear([0.0,0.0,0.0,1.0], g);
                 world_view.draw(&world_controller, &c, g);
-            });
+            });*/
         }
         if let Some(Button::Mouse(button)) = e.press_args() {
             if button == mouse::MouseButton::Left
@@ -102,5 +106,10 @@ fn main() {
             cursor = point(x, y);
             //println!("Mouse moved '{} {}'", x, y);
         });
+
+        if let Some(u) = e.update_args()
+        {
+            world_controller.events();
+        }
     }
 }

@@ -3,17 +3,17 @@
 use rusttype::{Point};
 
 /// Check if the given position is available on the map
-pub fn check_avail(map_usage : &Vec<Vec<bool>>, position : Point<usize>, space_needed : &Vec<Vec<bool>>) -> bool
+pub fn check_avail(map_usage : &Vec<Vec<bool>>, position : Point<i32>, space_needed : &Vec<Vec<bool>>) -> bool
 {
     let mut is_okay = true;
     for index_to_addx in 0..space_needed.len()
     {
         for index_to_addy in 0..space_needed[index_to_addx].len()
         {
-            if (position.x + index_to_addx >= map_usage.len() ||
-            position.y + index_to_addy >= map_usage[position.x + index_to_addx].len()) ||
+            if (position.x + index_to_addx as i32 >= map_usage.len() as i32 ||
+            position.y + index_to_addy as i32 >= map_usage[position.x as usize + index_to_addx].len() as i32) ||
             (space_needed[index_to_addx][index_to_addy] == true &&
-            map_usage[position.x + index_to_addx][position.y + index_to_addy] == true)
+            map_usage[position.x as usize + index_to_addx][position.y as usize + index_to_addy] == true)
             {
                 println!("nok");
                 is_okay = false;
