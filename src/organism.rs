@@ -85,19 +85,20 @@ impl<'a> Organism<'a>
     }
 
     /// Updates the organism
-    pub fn update(&mut self, food: &Vec<Point<i32>>)
+    pub fn update(&'a mut self, food: &Vec<Point<i32>>)
     {
         //println!("OrgUpdate");
-        if self.food_aim.x == -1
+
+        /*if self.food_aim.x == -1
         {
             self.update_closest_food(food);
             //println!("Closest food : {:?}", self.food_aim);
         }
-        self.moving();
+        s.moving();*/
     }
 
     /// Function that computes the next position of the organism
-    fn moving(&mut self)
+    pub fn moving(&'a mut self)
     {
         if self.food_aim.x != -1
         {
@@ -143,7 +144,7 @@ impl<'a> Organism<'a>
     }
 
     /// Search for food in the perception area
-    fn update_closest_food(&'a mut self, food: &Vec<Point<i32>>)
+    pub fn update_closest_food(&'a mut self, food: &Vec<Point<i32>>)
     {
         //let food = world.get_food_pos();
         let mut curr_food = point(-1,-1);

@@ -60,17 +60,17 @@ fn main() {
 
     // Event loop. events.next return the an Event item for the current loop.
     // this loop
-    while let Some(e) = events.next(&mut window)
+    /*while let Some(e) = events.next(&mut window)
     {
          //e : Event is an enum that contains the differents events
         if let Some(args) = e.render_args()
         {
-            /*gl.draw(args.viewport(), |c, g| {
+            gl.draw(args.viewport(), |c, g| {
                 use graphics::{clear};
 
                 clear([0.0,0.0,0.0,1.0], g);
                 world_view.draw(&world_controller, &c, g);
-            });*/
+            });
         }
         if let Some(Button::Mouse(button)) = e.press_args() {
             if button == mouse::MouseButton::Left
@@ -111,5 +111,5 @@ fn main() {
         {
             world_controller.events();
         }
-    }
+    }*/
 }

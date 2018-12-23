@@ -49,11 +49,13 @@ impl<'b> World<'b>
     }
 
     /// Updates the world
-    pub fn update(&mut self)
+    pub fn update(&'b mut self)
     {
         for org in self.organisms.iter_mut()
         {
-            org.update(&self.food);
+            { org.update_closest_food(&self.food); }
+            { org.moving(); }
+            //org.update(&self.food);
         }
     }
 
@@ -74,13 +76,13 @@ impl<'b> World<'b>
     }
 
     /// Returns organisms
-    pub fn get_organisms(&self) -> &Vec<Organism>
+    pub fn get_organisms(&self) -> &Vec<Organism<'b>>
     {
         &self.organisms
     }
 
     /// Adds a new organism
-    pub fn add_organism(&mut self, organism : Organism)
+    pub fn add_organism(&mut self, organism : Organism<'b>)
     {
         self.organisms.push(organism);
     }
