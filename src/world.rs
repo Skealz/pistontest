@@ -9,19 +9,19 @@ use constants::FOOD_PROP;
 use rusttype::{Point,point};
 
 /// Stores game board information
-pub struct World<'b>
+pub struct World
 {
     /// Stores all the organisms
-    pub organisms : Vec<Organism<'b>>,
+    pub organisms : Vec<Organism>,
 
     /// Food position on the map
     pub food : Vec<Point<i32>>
 }
 
-impl<'b> World<'b>
+impl World
 {
     /// Creates a new world
-    pub fn new() -> World<'b>
+    pub fn new() -> World
     {
         let mut food : Vec<Point<i32>> = Vec::new();
         let nb_food = ((WORLD_SIZE * WORLD_SIZE) as f32 * FOOD_PROP).trunc() as i32;
@@ -49,13 +49,20 @@ impl<'b> World<'b>
     }
 
     /// Updates the world
-    pub fn update(&'b mut self)
+    pub fn update(&mut self)
     {
-        for org in self.organisms.iter_mut()
+        for org in &mut self.organisms
         {
-            { org.update_closest_food(&self.food); }
-            { org.moving(); }
-            //org.update(&self.food);
+            let mut food_aim = point(-1, -1);
+            let mut closest_food_cell = point(-1, -1);
+            org.update_closest_food(&self.food, &mut food_aim, &mut closest_food_cell);
+            //println!("{:?} {:?}", food_aim, closest_food_cell);
+            let ate = org.moving(&food_aim, &closest_food_cell);
+            if ate
+            {
+                let index = self.food.iter().position(|&r| r == food_aim).unwrap();
+                self.food.remove(index);
+            }
         }
     }
 
@@ -76,13 +83,13 @@ impl<'b> World<'b>
     }
 
     /// Returns organisms
-    pub fn get_organisms(&self) -> &Vec<Organism<'b>>
+    pub fn get_organisms(&self) -> &Vec<Organism>
     {
         &self.organisms
     }
 
     /// Adds a new organism
-    pub fn add_organism(&mut self, organism : Organism<'b>)
+    pub fn add_organism(&mut self, organism : Organism)
     {
         self.organisms.push(organism);
     }

@@ -60,7 +60,7 @@ fn main() {
 
     // Event loop. events.next return the an Event item for the current loop.
     // this loop
-    /*while let Some(e) = events.next(&mut window)
+    while let Some(e) = events.next(&mut window)
     {
          //e : Event is an enum that contains the differents events
         if let Some(args) = e.render_args()
@@ -111,5 +111,5 @@ fn main() {
         {
             world_controller.events();
         }
-    }*/
+    }
 }

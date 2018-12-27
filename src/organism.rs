@@ -12,7 +12,7 @@ use std::f64::INFINITY;
 use World;
 
 /// Living organism composed by cells.
-pub struct Organism<'a>
+pub struct Organism
 {
     /// Cells that composes the organism
     cells : Vec<Cell>,
@@ -31,19 +31,13 @@ pub struct Organism<'a>
 
     /// Points defining the area in which the organism can see
     perception_area : Vec<Point<i32>>,
-
-    /// Current food position that the organism tries to reach
-    food_aim : Point<i32>,
-
-    ///Closest cell to food position
-    closest_food_cell : std::cell::Cell<Option<&'a Point<i32>>>
 }
 
-impl<'a> Organism<'a>
+impl Organism
 {
     /// Creates a new organism
     /// map_usage represents the current map usage.
-    pub fn new(map_usage : Vec<Vec<bool>>) -> Organism<'a>
+    pub fn new(map_usage : Vec<Vec<bool>>) -> Organism
     {
         let mut cells : Vec<Cell> = Vec::new();
 
@@ -76,8 +70,6 @@ impl<'a> Organism<'a>
             perception : 0,
             movement : 0,
             perception_area : Vec::new(),
-            food_aim : point(-1,-1),
-            closest_food_cell : std::cell::Cell::new(None)
         };
         org.update_perception_movement();
         org.update_perception_area();
@@ -85,7 +77,7 @@ impl<'a> Organism<'a>
     }
 
     /// Updates the organism
-    pub fn update(&'a mut self, food: &Vec<Point<i32>>)
+    pub fn update(&mut self, food: &Vec<Point<i32>>)
     {
         //println!("OrgUpdate");
 
@@ -98,12 +90,12 @@ impl<'a> Organism<'a>
     }
 
     /// Function that computes the next position of the organism
-    pub fn moving(&'a mut self)
+    pub fn moving(&mut self, food_aim : &Point<i32>, closest_food_cell : &Point<i32>) -> bool
     {
-        if self.food_aim.x != -1
+        if food_aim.x != -1
         {
-            let diff_x = self.food_aim.x - self.closest_food_cell.get().unwrap().x;
-            let diff_y = self.food_aim.y - self.closest_food_cell.get().unwrap().y;
+            let diff_x = food_aim.x - closest_food_cell.x;
+            let diff_y = food_aim.y - closest_food_cell.y;
             let dist = i32::abs(diff_x) + i32::abs(diff_y);
             // If the distance is inferior than the movement ability of the organism,
             // directly set the closest cell on the food
@@ -114,6 +106,7 @@ impl<'a> Organism<'a>
                     cell.position.x += diff_x;
                     cell.position.y += diff_y;
                 }
+                return true
             }
             else
             {
@@ -133,7 +126,7 @@ impl<'a> Organism<'a>
                     mov_x = mov_x.round();
                     mov_y = mov_y.round();
                 }
-                println!("mov_x : {:?}, mov_y : {:?}", mov_x, mov_y);
+                //println!("mov_x : {:?}, mov_y : {:?}", mov_x, mov_y);
                 for cell in &mut self.cells
                 {
                     cell.position.x += mov_x as i32;
@@ -141,15 +134,16 @@ impl<'a> Organism<'a>
                 }
             }
         }
+        false
     }
 
     /// Search for food in the perception area
-    pub fn update_closest_food(&'a mut self, food: &Vec<Point<i32>>)
+    pub fn update_closest_food(&self, food: &Vec<Point<i32>>, food_aim : &mut Point<i32>, closest_food_cell : &mut Point<i32>)
     {
         //let food = world.get_food_pos();
         let mut curr_food = point(-1,-1);
-        let mut closest_cell_pos : std::cell::Cell<Option<&'a Point<i32>>> = std::cell::Cell::new(None);
-        let has_food = false;
+        let mut closest_cell_pos = point(-1, -1);
+        let mut has_food = false;
         let mut min_food_dist = INFINITY;
         // Iterate through all the perception points
         for pnt in &self.perception_area
@@ -161,20 +155,20 @@ impl<'a> Organism<'a>
                 if has_food
                 {
                     let mut min_dist = INFINITY;
-                    let mut cell_pos : std::cell::Cell<Option<&'a Point<i32>>> = std::cell::Cell::new(None);
+                    let mut cell_pos = point(-1, -1);
                     for cell in &self.cells
                     {
                         let dist = f64::sqrt(((cell.position.x - pnt.x).pow(2) + (cell.position.y - pnt.y).pow(2)) as f64);
                         if dist < min_dist
                         {
                             min_dist = dist;
-                            cell_pos.set(Some(&cell.position));
+                            cell_pos = cell.position;
                         }
                     }
                     if min_dist < min_food_dist
                     {
                         min_food_dist = min_dist;
-                        closest_cell_pos.set(cell_pos.get());
+                        closest_cell_pos = cell_pos;
                         curr_food = *pnt;
                     }
                 }
@@ -183,23 +177,24 @@ impl<'a> Organism<'a>
                     curr_food = *pnt;
 
                     let mut min_dist = INFINITY;
-                    let mut cell_pos : std::cell::Cell<Option<&'a Point<i32>>> = std::cell::Cell::new(None);
+                    let mut cell_pos = point(-1, -1);
                     for cell in &self.cells
                     {
                         let dist = f64::sqrt(((cell.position.x - pnt.x).pow(2) + (cell.position.y - pnt.y).pow(2)) as f64);
                         if dist < min_dist
                         {
-                            cell_pos.set(Some(&cell.position));
+                            cell_pos = cell.position;
                             min_dist = dist;
                         }
                     }
-                    closest_cell_pos.set(cell_pos.get());
-                    min_food_dist = min_dist
+                    closest_cell_pos = cell_pos;
+                    min_food_dist = min_dist;
+                    has_food = true;
                 }
             }
         }
-        self.food_aim = curr_food;
-        self.closest_food_cell.set(closest_cell_pos.get());
+        *food_aim = curr_food;
+        *closest_food_cell = closest_cell_pos;
     }
 
     /// Updates the area in which the organism can see. Uses current_perception value
