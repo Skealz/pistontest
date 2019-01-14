@@ -53,15 +53,21 @@ impl World
     {
         for org in &mut self.organisms
         {
+            org.update_hunger();
             let mut food_aim = point(-1, -1);
             let mut closest_food_cell = point(-1, -1);
-            org.update_closest_food(&self.food, &mut food_aim, &mut closest_food_cell);
-            //println!("{:?} {:?}", food_aim, closest_food_cell);
+            let has_food = org.update_closest_food(&self.food, &mut food_aim, &mut closest_food_cell);
+            if(!has_food)
+            {
+                org.set_temp_dir(&food_aim)
+            }
+            println!("{:?} {:?}", food_aim, closest_food_cell);
             let ate = org.moving(&food_aim, &closest_food_cell);
-            if ate
+            if ate && has_food
             {
                 let index = self.food.iter().position(|&r| r == food_aim).unwrap();
                 self.food.remove(index);
+                org.eating();
             }
         }
     }

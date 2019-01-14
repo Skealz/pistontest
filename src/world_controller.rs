@@ -38,7 +38,7 @@ impl WorldController
     pub fn events(&mut self)
     {
         //println!("Canard");
-        if self.previous_time.elapsed().unwrap().as_secs() > 0 || self.previous_time.elapsed().unwrap().subsec_millis() > 900
+        if self.previous_time.elapsed().unwrap().as_secs() > 0 || self.previous_time.elapsed().unwrap().subsec_millis() > 500
         {
             self.world.update();
             self.previous_time = SystemTime::now();

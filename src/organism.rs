@@ -3,7 +3,7 @@
 extern crate rand;
 
 use Cell;
-use constants::WORLD_SIZE;
+use constants::*;
 use rusttype::{Point, point};
 use func;
 use rand::Rng;
@@ -18,10 +18,10 @@ pub struct Organism
     cells : Vec<Cell>,
 
     /// Size of the hunder gauge
-    hunger : i16,
+    max_hunger : i16,
 
-    /// Current hunger of the oranism (between 0 and hunger)
-    current_hunger : i16,
+    /// Current hunger of the oranism (between 0 and max_hunger)
+    hunger : i16,
 
     /// Current perception ability
     perception : i16,
@@ -31,6 +31,9 @@ pub struct Organism
 
     /// Points defining the area in which the organism can see
     perception_area : Vec<Point<i32>>,
+
+    /// Temporary direction when no food is found
+    temp_direction : Point<i32>
 }
 
 impl Organism
@@ -64,12 +67,13 @@ impl Organism
 
         let mut org = Organism
         {
+            max_hunger : (cells.len() as f32 * CELL_FOOD).round() as i16,
+            hunger : (cells.len() as f32 * CELL_FOOD).round() as i16,
             cells : cells,
-            hunger : 10,
-            current_hunger : 7,
             perception : 0,
             movement : 0,
             perception_area : Vec::new(),
+            temp_direction : point(-1,-1),
         };
         org.update_perception_movement();
         org.update_perception_area();
@@ -89,56 +93,126 @@ impl Organism
         s.moving();*/
     }
 
+    /// Update hunger gauge
+    pub fn update_hunger(&mut self)
+    {
+        self.hunger = (self.hunger as f32 - (self.cells.len() as f32 * CELL_CONSUMP)).round() as i16;
+    }
+
+    /// Apply effects when organism is eating food
+    pub fn eating(&mut self)
+    {
+        self.hunger += FOOD_VALUE as i16;
+        let avail_pos = self.find_avail_cell_pos();
+        let idx = rand::thread_rng().gen_range(0, avail_pos.len()) as usize;
+        // Create new cell her
+        self.cells.push(Cell::new_random(*avail_pos.get(idx).unwrap()));
+    }
+
+    /// Find available positions for a new cell
+    pub fn find_avail_cell_pos(&self) -> Vec<Point<i32>>
+    {
+        let mut avail_pos : Vec<Point<i32>> = Vec::new();
+        for cell in &self.cells
+        {
+            let mut pos : Vec<Point<i32>> =  Vec::new();
+            pos.push(point(cell.position.x + 1, cell.position.y));
+            pos.push(point(cell.position.x, cell.position.y + 1));
+            pos.push(point(cell.position.x - 1, cell.position.y));
+            pos.push(point(cell.position.x, cell.position.y - 1));
+
+            for p in pos
+            {
+                let mut p_ok = true;
+                for cel in &self.cells
+                {
+                    if cel.position == p
+                    {
+                        p_ok = false;
+                        break;
+                    }
+                }
+
+                if p_ok
+                {
+                    avail_pos.push(p);
+                }
+            }
+        }
+        //println!("Cell pos {:?}", self.cells.get(0).unwrap().position);
+        //println!("{:?}", avail_pos);
+        avail_pos
+    }
+
     /// Function that computes the next position of the organism
     pub fn moving(&mut self, food_aim : &Point<i32>, closest_food_cell : &Point<i32>) -> bool
     {
-        if food_aim.x != -1
+        let mut goal = *food_aim;
+        if goal.x == -1
         {
-            let diff_x = food_aim.x - closest_food_cell.x;
-            let diff_y = food_aim.y - closest_food_cell.y;
-            let dist = i32::abs(diff_x) + i32::abs(diff_y);
-            // If the distance is inferior than the movement ability of the organism,
-            // directly set the closest cell on the food
-            if dist <= self.movement as i32
+            goal = self.temp_direction;
+        }
+
+        let diff_x = goal.x - closest_food_cell.x;
+        let diff_y = goal.y - closest_food_cell.y;
+        let dist = i32::abs(diff_x) + i32::abs(diff_y);
+        // If the distance is inferior than the movement ability of the organism,
+        // directly set the closest cell on the food
+        if dist <= self.movement as i32
+        {
+            for cell in &mut self.cells
             {
-                for cell in &mut self.cells
-                {
-                    cell.position.x += diff_x;
-                    cell.position.y += diff_y;
-                }
-                return true
+                cell.position.x += diff_x;
+                cell.position.y += diff_y;
+            }
+            //Moving perception area
+            for perc_pos in &mut self.perception_area
+            {
+                perc_pos.x += diff_x;
+                perc_pos.y += diff_y;
+            }
+
+            if food_aim.x == -1
+            {
+                self.temp_direction = point(-1,-1);
+            }
+            return true
+        }
+        else
+        {
+            let fact_x = diff_x as f64 / dist as f64;
+            let fact_y = diff_y as f64 / dist as f64;
+            // one must be rounded bottom and the other up.. Care about numbers .5.. that will
+            // be rounded up both..
+            let mut mov_x : f64 = self.movement as f64 * fact_x;
+            let mut mov_y : f64 = self.movement as f64 * fact_y;
+            if mov_x - mov_x.trunc() == mov_y - mov_y.trunc()
+            {
+                mov_x = mov_x.trunc();
+                mov_y = mov_y.ceil();
             }
             else
             {
-                let fact_x = diff_x as f64 / dist as f64;
-                let fact_y = diff_y as f64 / dist as f64;
-                // one must be rounded bottom and the other up.. Care about numbers .5.. that will
-                // be rounded up both..
-                let mut mov_x : f64 = self.movement as f64 * fact_x;
-                let mut mov_y : f64 = self.movement as f64 * fact_y;
-                if mov_x - mov_x.trunc() == mov_y - mov_y.trunc()
-                {
-                    mov_x = mov_x.trunc();
-                    mov_y = mov_y.ceil();
-                }
-                else
-                {
-                    mov_x = mov_x.round();
-                    mov_y = mov_y.round();
-                }
-                //println!("mov_x : {:?}, mov_y : {:?}", mov_x, mov_y);
-                for cell in &mut self.cells
-                {
-                    cell.position.x += mov_x as i32;
-                    cell.position.y += mov_y as i32;
-                }
+                mov_x = mov_x.round();
+                mov_y = mov_y.round();
+            }
+            //println!("mov_x : {:?}, mov_y : {:?}", mov_x, mov_y);
+            for cell in &mut self.cells
+            {
+                cell.position.x += mov_x as i32;
+                cell.position.y += mov_y as i32;
+            }
+            for perc_pos in &mut self.perception_area
+            {
+                perc_pos.x += mov_x as i32;
+                perc_pos.y += mov_y as i32;
             }
         }
         false
     }
 
     /// Search for food in the perception area
-    pub fn update_closest_food(&self, food: &Vec<Point<i32>>, food_aim : &mut Point<i32>, closest_food_cell : &mut Point<i32>)
+    pub fn update_closest_food(&self, food: &Vec<Point<i32>>, food_aim : &mut Point<i32>, closest_food_cell : &mut Point<i32>) -> bool
     {
         //let food = world.get_food_pos();
         let mut curr_food = point(-1,-1);
@@ -193,8 +267,27 @@ impl Organism
                 }
             }
         }
+        if !has_food
+        {
+            if self.temp_direction.x == -1
+            {
+                let mut circle_points : Vec<Point<i32>> = Vec::new();
+                let mut t = 0.0;
+                let r : f64 = self.perception as f64;
+                while t <= 2.0*PI
+                {
+                    circle_points.push(point((r as f64 * f64::cos(t)).round() as i32, (r as f64 * f64::sin(t)).round() as i32));
+                    t += 0.05;
+                }
+                let idx = rand::thread_rng().gen_range(0, circle_points.len()) as usize;
+                *food_aim = circle_points[idx];
+                return false
+            }
+        }
+
         *food_aim = curr_food;
         *closest_food_cell = closest_cell_pos;
+        return true
     }
 
     /// Updates the area in which the organism can see. Uses current_perception value
@@ -235,6 +328,12 @@ impl Organism
             self.perception += cell.perception;
             self.movement += cell.movement;
         }
+    }
+
+    /// Set temporary direction
+    pub fn set_temp_dir(&mut self, direction: &Point<i32>)
+    {
+        self.temp_direction = *direction;
     }
 
     /// Returns the points composing the circle of the perception area
