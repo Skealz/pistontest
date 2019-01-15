@@ -56,13 +56,25 @@ impl World
             org.update_hunger();
             let mut food_aim = point(-1, -1);
             let mut closest_food_cell = point(-1, -1);
+            let p = point(-1, -1);
             let has_food = org.update_closest_food(&self.food, &mut food_aim, &mut closest_food_cell);
+            println!("{:?} {:?}", food_aim, closest_food_cell);
             if(!has_food)
             {
-                org.set_temp_dir(&food_aim)
+                org.set_temp_dir(&food_aim);
+                food_aim = point(-1, -1);
             }
-            println!("{:?} {:?}", food_aim, closest_food_cell);
+            else
+            {
+                println!("RESET DIR");
+                org.set_temp_dir(&p);
+            }
             let ate = org.moving(&food_aim, &closest_food_cell);
+            if ate
+            {
+                println!("RESET DIR2");
+                org.set_temp_dir(&p);
+            }
             if ate && has_food
             {
                 let index = self.food.iter().position(|&r| r == food_aim).unwrap();

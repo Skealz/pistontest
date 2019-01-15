@@ -8,7 +8,7 @@ pub const WIN_WIDTH : f64 = 500.0;
 pub const WIN_HEIGHT : f64 = 500.0;
 
 /// Food proportion on the map
-pub const FOOD_PROP : f32 = 0.001;
+pub const FOOD_PROP : f32 = 0.00001;
 
 /// How much a cell contributes to the food gauge
 pub const CELL_FOOD : f32 = 10.0;

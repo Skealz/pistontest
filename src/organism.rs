@@ -34,6 +34,7 @@ pub struct Organism
 
     /// Temporary direction when no food is found
     temp_direction : Point<i32>
+
 }
 
 impl Organism
@@ -151,6 +152,7 @@ impl Organism
         if goal.x == -1
         {
             goal = self.temp_direction;
+            println!("Moving without food {:?}", goal);
         }
 
         let diff_x = goal.x - closest_food_cell.x;
@@ -171,11 +173,7 @@ impl Organism
                 perc_pos.x += diff_x;
                 perc_pos.y += diff_y;
             }
-
-            if food_aim.x == -1
-            {
-                self.temp_direction = point(-1,-1);
-            }
+            println!("REACHED AIMED POINT");
             return true
         }
         else
@@ -269,6 +267,7 @@ impl Organism
         }
         if !has_food
         {
+            println!("NEED NEW DIR");
             if self.temp_direction.x == -1
             {
                 let mut circle_points : Vec<Point<i32>> = Vec::new();
@@ -280,7 +279,13 @@ impl Organism
                     t += 0.05;
                 }
                 let idx = rand::thread_rng().gen_range(0, circle_points.len()) as usize;
-                *food_aim = circle_points[idx];
+                *food_aim = point(self.cells[0].position.x + circle_points[idx].x, self.cells[0].position.y + circle_points[idx].y);
+                println!("NEW diiir {:?}", food_aim);
+                return false
+            }
+            else
+            {
+                *food_aim = self.temp_direction;
                 return false
             }
         }
