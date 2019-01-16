@@ -281,13 +281,22 @@ impl Organism
                 let idx = rand::thread_rng().gen_range(0, circle_points.len()) as usize;
                 *food_aim = point(self.cells[0].position.x + circle_points[idx].x, self.cells[0].position.y + circle_points[idx].y);
                 println!("NEW diiir {:?}", food_aim);
-                return false
             }
             else
             {
                 *food_aim = self.temp_direction;
-                return false
             }
+            let mut min_dist = INFINITY;
+            for cell in &self.cells
+            {
+                let dist = f64::sqrt(((cell.position.x - food_aim.x).pow(2) + (cell.position.y - food_aim.y).pow(2)) as f64);
+                if dist < min_dist
+                {
+                    min_dist = dist;
+                    *closest_food_cell = cell.position;
+                }
+            }
+            return false;
         }
 
         *food_aim = curr_food;
@@ -297,7 +306,7 @@ impl Organism
 
     /// Updates the area in which the organism can see. Uses current_perception value
     /// added to the cells in all the directions
-    fn update_perception_area(&mut self)
+    pub fn update_perception_area(&mut self)
     {
         let cells = &self.cells;
         let mut circle_points : Vec<Point<i32>> = Vec::new();
@@ -323,7 +332,7 @@ impl Organism
 
     /// Computes the current organism perception and movement ability by adding the perception and movement of each cell
     /// This function should be called when a cell is created or destroyed.
-    fn update_perception_movement(&mut self)
+    pub fn update_perception_movement(&mut self)
     {
         self.perception = 0;
         self.movement = 0;

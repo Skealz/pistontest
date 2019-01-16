@@ -78,7 +78,7 @@ impl WorldView
       //Draw board background
       Rectangle::new(self.settings.background_color).draw(board_rect, &c.draw_state, c.transform, g);
 
-      //self.draw_perceptions(controller, c, g);
+      self.draw_perceptions(controller, c, g);
       self.draw_cells(controller, c, g);
       self.draw_food(controller, c, g);
     }

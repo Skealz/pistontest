@@ -80,6 +80,8 @@ impl World
                 let index = self.food.iter().position(|&r| r == food_aim).unwrap();
                 self.food.remove(index);
                 org.eating();
+                org.update_perception_movement();
+                org.update_perception_area();
             }
         }
     }
