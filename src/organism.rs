@@ -23,6 +23,9 @@ pub struct Organism
     /// Current hunger of the oranism (between 0 and max_hunger)
     hunger : i16,
 
+    /// Current life
+    life : i16,
+
     /// Current perception ability
     perception : i16,
 
@@ -75,6 +78,7 @@ impl Organism
             movement : 0,
             perception_area : Vec::new(),
             temp_direction : point(-1,-1),
+            life : 0,
         };
         org.update_perception_movement();
         org.update_perception_area();
@@ -92,12 +96,6 @@ impl Organism
             //println!("Closest food : {:?}", self.food_aim);
         }
         s.moving();*/
-    }
-
-    /// Update hunger gauge
-    pub fn update_hunger(&mut self)
-    {
-        self.hunger = (self.hunger as f32 - (self.cells.len() as f32 * CELL_CONSUMP)).round() as i16;
     }
 
     /// Apply effects when organism is eating food
@@ -152,7 +150,7 @@ impl Organism
         if goal.x == -1
         {
             goal = self.temp_direction;
-            println!("Moving without food {:?}", goal);
+            //println!("Moving without food {:?}", goal);
         }
 
         let diff_x = goal.x - closest_food_cell.x;
@@ -173,7 +171,7 @@ impl Organism
                 perc_pos.x += diff_x;
                 perc_pos.y += diff_y;
             }
-            println!("REACHED AIMED POINT");
+            //println!("REACHED AIMED POINT");
             return true
         }
         else
@@ -267,7 +265,7 @@ impl Organism
         }
         if !has_food
         {
-            println!("NEED NEW DIR");
+            //println!("NEED NEW DIR");
             if self.temp_direction.x == -1
             {
                 let mut circle_points : Vec<Point<i32>> = Vec::new();
@@ -280,7 +278,7 @@ impl Organism
                 }
                 let idx = rand::thread_rng().gen_range(0, circle_points.len()) as usize;
                 *food_aim = point(self.cells[0].position.x + circle_points[idx].x, self.cells[0].position.y + circle_points[idx].y);
-                println!("NEW diiir {:?}", food_aim);
+                //println!("NEW diiir {:?}", food_aim);
             }
             else
             {
@@ -344,6 +342,57 @@ impl Organism
         }
     }
 
+    /// Update life gauge
+    pub fn update_life(&mut self)
+    {
+        let min_neigh = INFINITY;
+        let mut life = 0;
+        for cell in &self.cells
+        {
+            
+        }
+        self.life = life;
+    }
+
+    /// This function must be called when the organism is starving (ie hunger == 0)
+    /// It will remove life from a random cell.
+    pub fn starving(&mut self)
+    {
+        let idx = rand::thread_rng().gen_range(0, self.cells.len()) as usize;
+        self.cells[idx].curr_life -= 1;
+    }
+
+    /// Update hunger gauge
+    pub fn update_hunger(&mut self)
+    {
+        self.hunger = (self.hunger as f32 - (self.cells.len() as f32 * CELL_CONSUMP)).round() as i16;
+        println!("HUNGER : {:?}", self.hunger);
+    }
+
+    ///Return current hunger
+    pub fn get_hunger(&mut self) -> i16
+    {
+        return self.hunger;
+    }
+
+    /// Remove cells that have curr_life at zero
+    pub fn remove_dead_cells(&mut self)
+    {
+        let mut rm_idx : Vec<usize> = Vec::new();
+        for i in (0..self.cells.len())
+        {
+            if self.cells[i].curr_life <= 0
+            {
+                rm_idx.push(i);
+            }
+        }
+
+        for idx in rm_idx
+        {
+            self.cells.remove(idx);
+        }
+    }
+
     /// Set temporary direction
     pub fn set_temp_dir(&mut self, direction: &Point<i32>)
     {
@@ -368,5 +417,11 @@ impl Organism
     pub fn get_cells(&self) -> &Vec<Cell>
     {
         &self.cells
+    }
+}
+
+impl PartialEq for Organism {
+    fn eq(&self, other: &Organism) -> bool {
+        self.cells[0].position == other.cells[0].position
     }
 }

@@ -1,10 +1,12 @@
 TODO file
 
 Current tasks :
-Searching for food --> if no food in sight, go in a random direction. If food in sight, go directly to it.
+Hunger/life gauge
 
 Tasks to do :
 Organisms behaviors : perception, search for food, estimate other individuals threat or gain when killed.
+Optimiser
+Equilibrer nourriture/jauge faim
 
 
 Over :

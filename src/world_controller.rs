@@ -40,7 +40,8 @@ impl WorldController
         //println!("Canard");
         if self.previous_time.elapsed().unwrap().as_secs() > 0 || self.previous_time.elapsed().unwrap().subsec_millis() > 500
         {
-            self.world.update();
+            let dead_orgs = self.world.update();
+            self.world.remove_dead_orgs(dead_orgs);
             self.previous_time = SystemTime::now();
         }
     }

@@ -49,40 +49,61 @@ impl World
     }
 
     /// Updates the world
-    pub fn update(&mut self)
+    pub fn update(&mut self) -> Vec<usize>
     {
-        for org in &mut self.organisms
+        let mut dead_orgs : Vec<usize> = Vec::new();
+        for i in (0..self.organisms.len())
         {
-            org.update_hunger();
+            self.organisms[i].update_hunger();
+            let hunger = self.organisms[i].get_hunger();
+            if hunger <= 0
+            {
+                dead_orgs.push(i);
+                //let index = self.organisms.binary_search(org);
+                //let index = self.organisms.iter().position(|x| x == org).unwrap();
+                //self.organisms.remove(index);
+            }
+
             let mut food_aim = point(-1, -1);
             let mut closest_food_cell = point(-1, -1);
             let p = point(-1, -1);
-            let has_food = org.update_closest_food(&self.food, &mut food_aim, &mut closest_food_cell);
-            println!("{:?} {:?}", food_aim, closest_food_cell);
+            let has_food = self.organisms[i].update_closest_food(&self.food, &mut food_aim, &mut closest_food_cell);
+            //println!("{:?} {:?}", food_aim, closest_food_cell);
             if(!has_food)
             {
-                org.set_temp_dir(&food_aim);
+                self.organisms[i].set_temp_dir(&food_aim);
                 food_aim = point(-1, -1);
             }
             else
             {
-                println!("RESET DIR");
-                org.set_temp_dir(&p);
+                //println!("RESET DIR");
+                self.organisms[i].set_temp_dir(&p);
             }
-            let ate = org.moving(&food_aim, &closest_food_cell);
+            let ate = self.organisms[i].moving(&food_aim, &closest_food_cell);
             if ate
             {
-                println!("RESET DIR2");
-                org.set_temp_dir(&p);
+                //println!("RESET DIR2");
+                self.organisms[i].set_temp_dir(&p);
             }
             if ate && has_food
             {
                 let index = self.food.iter().position(|&r| r == food_aim).unwrap();
                 self.food.remove(index);
-                org.eating();
-                org.update_perception_movement();
-                org.update_perception_area();
+                self.organisms[i].eating();
+                self.organisms[i].update_perception_movement();
+                self.organisms[i].update_perception_area();
             }
+        }
+
+        dead_orgs
+    }
+
+    /// Remove the cells
+    pub fn remove_dead_orgs(&mut self, indexes : Vec<usize>)
+    {
+        for index in indexes
+        {
+            self.organisms.remove(index);
         }
     }
 
