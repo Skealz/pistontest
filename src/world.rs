@@ -52,13 +52,19 @@ impl World
     pub fn update(&mut self) -> Vec<usize>
     {
         let mut dead_orgs : Vec<usize> = Vec::new();
-        for i in (0..self.organisms.len())
+        for i in 0..self.organisms.len()
         {
             self.organisms[i].update_hunger();
             let hunger = self.organisms[i].get_hunger();
             if hunger <= 0
             {
-                dead_orgs.push(i);
+                self.organisms[i].starving();
+                self.organisms[i].update_life();
+                self.organisms[i].remove_dead_cells();
+                if self.organisms[i].get_cells().len() == 0
+                {
+                    dead_orgs.push(i);
+                }
                 //let index = self.organisms.binary_search(org);
                 //let index = self.organisms.iter().position(|x| x == org).unwrap();
                 //self.organisms.remove(index);
@@ -69,20 +75,22 @@ impl World
             let p = point(-1, -1);
             let has_food = self.organisms[i].update_closest_food(&self.food, &mut food_aim, &mut closest_food_cell);
             //println!("{:?} {:?}", food_aim, closest_food_cell);
-            if(!has_food)
+            // If no food is found we need to send (-1,-1) to the moving function to tell
+            // that it must take the generated tempdirection
+            if !has_food
             {
                 self.organisms[i].set_temp_dir(&food_aim);
                 food_aim = point(-1, -1);
             }
             else
             {
-                //println!("RESET DIR");
+                // Resetting the temp direction
                 self.organisms[i].set_temp_dir(&p);
             }
             let ate = self.organisms[i].moving(&food_aim, &closest_food_cell);
             if ate
             {
-                //println!("RESET DIR2");
+                //Resetting the temp direction
                 self.organisms[i].set_temp_dir(&p);
             }
             if ate && has_food

@@ -1,7 +1,9 @@
 TODO file
 
 Current tasks :
-Hunger/life gauge
+Hunger/life gauge -> when the cell is starving, remove life from cells. To select the cell from which to remove life, we take the last cell added
+Manage dead cells
+Pour optimiser : il faudrait passer une carte du monde au lieu d'avoir à chercher case par case
 
 Tasks to do :
 Organisms behaviors : perception, search for food, estimate other individuals threat or gain when killed.

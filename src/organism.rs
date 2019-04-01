@@ -144,6 +144,9 @@ impl Organism
     }
 
     /// Function that computes the next position of the organism
+    /// Returns true if the targeted point is reached.
+    /// The targeted point is food_aim, or if food_aim contains (-1,-1), the target is
+    /// taken in the organism attribute temp_direction.
     pub fn moving(&mut self, food_aim : &Point<i32>, closest_food_cell : &Point<i32>) -> bool
     {
         let mut goal = *food_aim;
@@ -208,6 +211,10 @@ impl Organism
     }
 
     /// Search for food in the perception area
+    /// If food is found, the function returns true and the aimed position is set in food_aim and
+    /// the position of the closest organism cell in closest_food_cell
+    /// If no food is found a random direction is selected : the aimed position is set in food_aim and the
+    /// closest cell positiion to this position in closest_food_cell. When no food is found, false is returned
     pub fn update_closest_food(&self, food: &Vec<Point<i32>>, food_aim : &mut Point<i32>, closest_food_cell : &mut Point<i32>) -> bool
     {
         //let food = world.get_food_pos();
@@ -263,9 +270,11 @@ impl Organism
                 }
             }
         }
+        // If no food has been found in perception range, the organism goes in a random direction
         if !has_food
         {
-            //println!("NEED NEW DIR");
+            // If no current temp random direction is set, we compute one.
+            // Otherwise we take the one already computed
             if self.temp_direction.x == -1
             {
                 let mut circle_points : Vec<Point<i32>> = Vec::new();
@@ -312,7 +321,7 @@ impl Organism
         let mut t = 0.0;
         while t <= 2.0*PI
         {
-            for ray in (0..r as i32)
+            for ray in 0..r as i32
             {
                 circle_points.push(point((ray as f64 * f64::cos(t)).round() as i32, (ray as f64 * f64::sin(t)).round() as i32));
             }
@@ -349,24 +358,37 @@ impl Organism
         let mut life = 0;
         for cell in &self.cells
         {
-            
+            life += cell.curr_life;
         }
         self.life = life;
     }
 
-    /// This function must be called when the organism is starving (ie hunger == 0)
-    /// It will remove life from a random cell.
+    /// This function must be called when the organism is starving (hunger == 0)
+    /// It will remove life from the latest added cell
     pub fn starving(&mut self)
     {
-        let idx = rand::thread_rng().gen_range(0, self.cells.len()) as usize;
-        self.cells[idx].curr_life -= 1;
+        //let idx = rand::thread_rng().gen_range(0, self.cells.len()) as usize; to select random cell
+        //self.cells[idx].curr_life -= 1;
+        let mut cellOpt = self.cells.last();
+        if cellOpt.is_some()
+        {
+            let mut cell = cellOpt.as_mut().unwrap();//.curr_life -= 1;
+            cell.curr_life -= 1;
+        }
+        else
+        {
+            println!("[STARVING] No cell from which to remove life");
+        }
     }
 
     /// Update hunger gauge
     pub fn update_hunger(&mut self)
     {
-        self.hunger = (self.hunger as f32 - (self.cells.len() as f32 * CELL_CONSUMP)).round() as i16;
-        println!("HUNGER : {:?}", self.hunger);
+        if self.hunger >= 0
+        {
+            self.hunger = (self.hunger as f32 - (self.cells.len() as f32 * CELL_CONSUMP)).round() as i16;
+            println!("HUNGER : {:?}", self.hunger);
+        }
     }
 
     ///Return current hunger
@@ -379,7 +401,7 @@ impl Organism
     pub fn remove_dead_cells(&mut self)
     {
         let mut rm_idx : Vec<usize> = Vec::new();
-        for i in (0..self.cells.len())
+        for i in 0..self.cells.len()
         {
             if self.cells[i].curr_life <= 0
             {

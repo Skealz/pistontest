@@ -48,11 +48,11 @@ impl Cell
         Cell
         {
             position,
-            life : match cell_type { CellType::Life => 10, _ => 1 },
-            curr_life : match cell_type { CellType::Life => 10, _ => 1 },
+            life : match cell_type { CellType::Life => 5, _ => 1 },
+            curr_life : match cell_type { CellType::Life => 5, _ => 1 },
             movement : match cell_type { CellType::Movement => 3, _ => 1 },
-            attack : match cell_type { CellType::Attack => 10, _ => 1 },
-            defense : match cell_type { CellType::Defense => 10, _ => 1 },
+            attack : match cell_type { CellType::Attack => 5, _ => 1 },
+            defense : match cell_type { CellType::Defense => 5, _ => 1 },
             perception : match cell_type { CellType::Perception => 5, _ => 1 },
         }
     }
