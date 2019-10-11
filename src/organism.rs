@@ -2,6 +2,9 @@
 
 extern crate rand;
 
+extern crate time;
+//use time::PreciseTime;
+
 use Cell;
 use constants::*;
 use rusttype::{Point, point};
@@ -10,6 +13,8 @@ use rand::Rng;
 use std::f64::consts::PI;
 use std::f64::INFINITY;
 use World;
+
+
 
 /// Living organism composed by cells.
 pub struct Organism
@@ -149,6 +154,10 @@ impl Organism
     /// taken in the organism attribute temp_direction.
     pub fn moving(&mut self, food_aim : &Point<i32>, closest_food_cell : &Point<i32>) -> bool
     {
+        // Benchmarking
+        let start = time::PreciseTime::now();
+        //
+
         let mut goal = *food_aim;
         if goal.x == -1
         {
@@ -174,6 +183,10 @@ impl Organism
                 perc_pos.x += diff_x;
                 perc_pos.y += diff_y;
             }
+            // Benchmarking
+            let end = time::PreciseTime::now();
+            println!("Moving {} seconds", start.to(end));
+            //
             //println!("REACHED AIMED POINT");
             return true
         }
@@ -206,6 +219,10 @@ impl Organism
                 perc_pos.x += mov_x as i32;
                 perc_pos.y += mov_y as i32;
             }
+            // Benchmarking
+            let end = time::PreciseTime::now();
+            println!("Moving {} seconds", start.to(end));
+            //
         }
         false
     }
@@ -217,6 +234,10 @@ impl Organism
     /// closest cell positiion to this position in closest_food_cell. When no food is found, false is returned
     pub fn update_closest_food(&self, food: &Vec<Point<i32>>, food_aim : &mut Point<i32>, closest_food_cell : &mut Point<i32>) -> bool
     {
+        // Benchmarking
+        let start = time::PreciseTime::now();
+        //
+
         //let food = world.get_food_pos();
         let mut curr_food = point(-1,-1);
         let mut closest_cell_pos = point(-1, -1);
@@ -303,11 +324,20 @@ impl Organism
                     *closest_food_cell = cell.position;
                 }
             }
+            // Benchmarking
+            let end = time::PreciseTime::now();
+            println!("Search food {} seconds", start.to(end));
+            //
             return false;
         }
 
         *food_aim = curr_food;
         *closest_food_cell = closest_cell_pos;
+
+        // Benchmarking
+        let end = time::PreciseTime::now();
+        println!("Search food {} seconds", start.to(end));
+        //
         return true
     }
 
@@ -369,15 +399,11 @@ impl Organism
     {
         //let idx = rand::thread_rng().gen_range(0, self.cells.len()) as usize; to select random cell
         //self.cells[idx].curr_life -= 1;
-        let mut cellOpt = self.cells.last();
-        if cellOpt.is_some()
+        let mut cellOpt = self.cells.last_mut();
+        match cellOpt
         {
-            let mut cell = cellOpt.as_mut().unwrap();//.curr_life -= 1;
-            cell.curr_life -= 1;
-        }
-        else
-        {
-            println!("[STARVING] No cell from which to remove life");
+            Some(cell) => cell.curr_life -= 1,
+            None => println!("[STARVING] No cell from which to remove life"),
         }
     }
 
